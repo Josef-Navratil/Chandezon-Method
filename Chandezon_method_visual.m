@@ -3,8 +3,8 @@ clear all; %clc;
 %% Set constants
 tic                     %start counting computing time
 Lam=400e-9;             %wavelength of incident light
-h=200e-9;                 %depth of the grating
-d=700e-9;               %period of the grating
+h=600e-9;                 %depth of the grating
+d=300e-9;               %period of the grating
 K=2*pi/d;               
 mu0=4*pi*1e-7;          %vaccum permeability
 eps0=8.85*1e-12;        %vacuum permittivity
@@ -37,8 +37,8 @@ eps2=n2*n2/(mu^2);      %relative permittivity of transmission medium
 %mu1=1;                 %relative permeability of incident medium
 %mu2=1.5;              %relative permeability of transmitted medium
 %% Auxiliary constants
-m1=-27;                  %lower truncation order
-m2=27;                   %upper truncation order
+m1=-25;                  %lower truncation order
+m2=25;                   %upper truncation order
 tol=10e-10;             %error tolerance
 %Z0=sqrt(mu0/eps0);     %Z0
 %m1=-floor(alfa0/K)-(nDim-1)/2;     %lower order for adaptive truncation
@@ -219,9 +219,9 @@ for k=min(real_Ray2_idx):max(real_Ray2_idx)
 end
 toc
 %% Plot fields
-nPoints=400;
+nPoints=200;
 xx=linspace(0,d*k0,nPoints);
-yy=linspace(-3,3,nPoints);
+yy=linspace(-0.7*h*k0,h*k0,nPoints);
 [X,Y]=meshgrid(xx,yy);
 clear yy
 
