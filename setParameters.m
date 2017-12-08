@@ -3,6 +3,7 @@ function [Parameters]=setParameters()
 WaveLengthMin=200e-9; %lower bound on wavelength
 WaveLengthMax=900e-9; %upper bound on wavelength
 NumberOfWaveLength=100; %number of wavelenght
+WaveLengthToPlot=500e-9; %give wavelength for which the intensity distribution will be plotted
 d=600e-9; %period of the grating
 h=400e-9; %depth of the grating
 Polarization={'TM'}; %set polarization
@@ -22,7 +23,7 @@ n2=1+5i;
 numTr=20; %Truncation number
 tol=10e-10; %error tolerance
 ParameterField=[WaveLengthMin WaveLengthMax NumberOfWaveLength d...
-    ThetaInc n1 n2 numTr tol h];
+    ThetaInc n1 n2 numTr tol h WaveLengthToPlot];
 field1='Param';
 field2='Polar';
 field3='Prof';
