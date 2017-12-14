@@ -118,10 +118,11 @@ end
 for k=min(real_Ray2_idx):max(real_Ray2_idx)
     etaT(k-min(real_Ray2_idx)+1)=(eps1/eps2)*(sqrt(B2(k-m1+1))/b0)*(abs(RVec(k-min(real_Ray2_idx)+1+nDim)))^2;
 end
+if strcmp(Parameters(1).PlotIntensity,'YES') 
 if((VecWaveLength(i)<=WaveLengthToPlot)&&(WaveLengthToPlot<=VecWaveLength(i+1)))
     disp('Plotting intensity distribution');
     %% Plot fields
-    nPoints=400;
+    nPoints=100;
     xx=linspace(0,d*k0,nPoints);
     yy=linspace(-0.7*h*k0,h*k0,nPoints);
     [X,Y]=meshgrid(xx,yy);
@@ -155,18 +156,23 @@ if((VecWaveLength(i)<=WaveLengthToPlot)&&(WaveLengthToPlot<=VecWaveLength(i+1)))
     disp('It is almost done')
     Z=double(abs(FIn+FRPlus+FRPlusIm+FRNeg+FRNegIm));
     %Z=double(real(FIn+FRPlus+FRPlusIm+FRNeg+FRNegIm));
+    figure('Name','Distribution of intensity')
+    hold on
     pcolor(X,Y,Z);
     shading flat;
     colorbar;
     colormap jet;
-    hold on
+    axis equal;
     fy=a_fun(xx);
-    plot(xx,fy,'w-','LineWidth',1.5);
+    IntensityPlot=plot(xx,fy,'w-','LineWidth',1.5);
+%    saveas(IntensityPlot,'IntensityDistribution.png') %Save plot to png
+%    file
+    hold off
     disp('Computation paused, press any key to continue')
     pause
 
 end
-
+end
 clearvars -except etaR etaT Lam WaveLengthToPlot VecWaveLength Parameters d h thI n1 n2 K mu0 eps0 nTr tol alfa0 mu eps1 eps2 mu1 mu2 nDim real_Ray1_idx i RefVec
 RAmp=(real_Ray1_idx==0);
 RefVec(i)=etaR(RAmp);
