@@ -1,18 +1,19 @@
-%% Implementation of Chandezon method for relief gratings with visualisation of the fields
 clear all; %clc;
 %% Set constants
 tic                     %start counting computing time
-Lam=400e-9;             %wavelength of incident light
-h=600e-9;                 %depth of the grating
-d=300e-9;               %period of the grating
+Lam=700e-9;             %wavelength of incident light
+h=200.4e-9;                 %depth of the grating
+d=917e-9;               %period of the grating
 K=2*pi/d;               
 mu0=4*pi*1e-7;          %vaccum permeability
 eps0=8.85*1e-12;        %vacuum permittivity
-thI=15*pi/180;          %incident angle
+thI=20*pi/180;          %incident angle
 n1=1;                   %refraction index of incident medium
-n2=1+5*1i;              %refraction index of transmission medium 
+%n2=1+5*1i;              %refraction index of transmission medium 
 k0=2*pi/Lam;            %wavenumber
+%n2=2.65;
 %n2=1.5;
+n2 = 2.18+4.05i;
 %% Grating profile and its derivative
 
 %Asymetrical profile
@@ -20,25 +21,33 @@ k0=2*pi/Lam;            %wavenumber
 %a_diff_fun=@(x) -(0.1*Lam*K).*sin((K/k0).*x) - (0.02*Lam*2*K).*(sin((2*K/k0).*x - 5*pi/9));
 
 %Symmetrical profile
-a_fun=@(x) (h/2*k0)*cos((K/k0).*x);
-a_diff_fun=@(x) -(h/2*K).*sin((K/k0).*x);
+%a_fun=@(x) (h/2*k0)*cos((K/k0).*x);
+%a_diff_fun=@(x) -(h/2*K).*sin((K/k0).*x);
+
+%Quadratic sinusiodal profile
+h2=1.083;
+aa=(pi-h2)*(2/(d*k0));
+bb=h2*(2/(d*k0))^2;
+a_fun=@(x) (h/2*k0)*cos(aa.*x+bb.*(x.^2)).*(x<=k0*d/2)+(h/2*k0)*cos(aa.*(-x+k0*d)+bb.*(-x+k0*d).^2).*(x>=k0*d/2);
+a_diff_fun=@(x) -(h/2*k0)*(aa+2*bb.*x).*sin(aa.*x+bb.*(x.^2)).*(x<=k0*d/2)+...
+    (h/2*k0)*(aa+2*bb.*(-x+k0*d)).*sin(aa.*(-x+k0*d)+bb.*(-x+k0*d).^2).*(x>=k0*d/2);
 
 %Trivial profile
 %a_fun=@(x) 0.*x;
 %a_diff_fun=@(x) 0.*x;
 cut_small=1;            %cut small array elements
 %% TM Polarization
-mu=1;                   %relative permeability
-eps1=n1*n1/(mu^2);      %relative permittivity of incident medium
-eps2=n2*n2/(mu^2);      %relative permittivity of transmission medium
+%mu=1;                   %relative permeability
+%eps1=n1*n1/(mu^2);      %relative permittivity of incident medium
+%eps2=n2*n2/(mu^2);      %relative permittivity of transmission medium
 %% TE Polarization
-%eps1=1;                %relative permittivity of incident medium
-%eps2=1;                %relative permittivity of transmitted medium
-%mu1=1;                 %relative permeability of incident medium
-%mu2=1.5;              %relative permeability of transmitted medium
+eps1=1;                %relative permittivity of incident medium
+eps2=1;                %relative permittivity of transmitted medium
+mu1=1;                 %relative permeability of incident medium
+mu2=1.5;              %relative permeability of transmitted medium
 %% Auxiliary constants
-m1=-25;                  %lower truncation order
-m2=25;                   %upper truncation order
+m1=-14;                  %lower truncation order
+m2=12;                   %upper truncation order
 tol=10e-10;             %error tolerance
 %Z0=sqrt(mu0/eps0);     %Z0
 %m1=-floor(alfa0/K)-(nDim-1)/2;     %lower order for adaptive truncation
@@ -219,49 +228,10 @@ for k=min(real_Ray2_idx):max(real_Ray2_idx)
 end
 toc
 %% Plot fields
-nPoints=200;
-xx=linspace(0,d*k0,nPoints);
-yy=linspace(-0.7*h*k0,h*k0,nPoints);
+
+xx=linspace(0,d*k0,200);
+yy=linspace(-1.5,2,200);
 [X,Y]=meshgrid(xx,yy);
-clear yy
-
-FIn=exp(1i*alfa0/k0*X-1i*b0*Y).*(a_fun(X)<=Y);
-FRPlus=zeros(nPoints);          %preallocate fields for positive propagation orders in superstrate medium
-FRNeg=zeros(nPoints);           %preallocate fields for negative propagation orders in substrate medium
-FRPlusIm=zeros(nPoints);        %preallocate fields for positive evanescent orders in superstrate medium
-FRNegIm=zeros(nPoints);         %preallocate fields for negative evanescent orders in substrate medium
-
-for mm=1:length(real_eig1p)
-    FRPlus=(FRPlus + RVec(mm).*exp(1i*A(mm+min(real_Ray1_idx)-m1).*X + 1i*SB1(mm+min(real_Ray1_idx)-m1).*Y)).*(a_fun(X)<=Y);
-end
-toc
-
-for mm=m1:m2
-    for kk=1:length(imag_eig1p)
-        FRPlusIm=FRPlusIm + (exp(1i*A(mm-m1+1).*X).*((RVec(kk+length(real_eig1p))*imag_Vec1p(mm-m1+1,kk)).*exp(1i*imag_eig1p(kk).*(Y-a_fun(X))))).*(a_fun(X)<=Y);
-    end
-end
-toc
-for mm=1:length(real_eig2n)
-    FRNeg=FRNeg + (RVec(mm+length(real_eig1p)+length(imag_eig1p)).*exp(1i*A(mm+min(real_Ray2_idx)-m1).*X + 1i*SB2(mm+min(real_Ray2_idx)-m1).*Y)).*(a_fun(X)>Y);
-end
-
-for mm=m1:m2
-    for kk=1:length(imag_eig2n)
-        FRNegIm=FRNegIm + (exp(1i*A(mm-m1+1).*X).*((RVec(kk+length(real_eig1p)+length(imag_eig1p)+length(real_eig2n))*imag_Vec2n(mm-m1+1,kk)).*exp(1i*imag_eig2n(kk).*(Y-a_fun(X))))).*(a_fun(X)>Y);
-    end
-end
-
-Z=double(abs(FIn+FRPlus+FRPlusIm+FRNeg+FRNegIm));
-
-pcolor(X,Y,Z);
-shading flat;
-colorbar;
-colormap jet;
-hold on
-fy=a_fun(xx);
-plot(xx,fy,'w-','LineWidth',1.5);
-%{
 FIn=@(x,y) exp(1i*alfa0/k0.*x-1i*b0.*y);
 %FIn=FIn(X,Y);
 FRPlus=@(x,y) 0;
@@ -292,9 +262,7 @@ end
 toc
 
 FX=@(x,y) (FIn(x,y) + FRPlus(x,y)+FRPlusIm(x,y)).*(y>a_fun(x))+ (FRNeg(x,y)+FRNegIm(x,y)).*(y<=a_fun(x));
-
 %FX=FRPlus+FRPlusIm+FRNeg+FRNegIm;
-
 FFX=FX(X,Y);
 Z=double(abs(FFX));
 pcolor(X,Y,Z);
@@ -304,6 +272,6 @@ colormap jet;
 hold on
 fy=a_fun(xx);
 plot(xx,fy,'w-','LineWidth',0.3);
-%}
+
 %clearvars -except etaR etaT Lambda
 toc

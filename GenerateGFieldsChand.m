@@ -44,7 +44,7 @@ for M=1:nDim
     end
 end
 
-G_RP=(1/eps1).*G_RP; %"Normalizing by permittivities"
+G_RP=(1/eps1).*G_RP; %  Normalizing by permittivities
 G_RN=(1/eps2).*G_RN;
 G_in=(1/eps1).*G_in;
 G_P=(1/eps1).*G_P;
