@@ -1,4 +1,4 @@
-function [ RVec, real_Ray1_idx, real_Ray2_idx, m1, m2, B1, B2, b0 ] = Make_Computation( Lam, eps1, eps2, plot_fields )
+function [ RVec, real_Ray1_idx, real_Ray2_idx, m1, m2, B1, B2, b0 ] = Make_Computation( Lam, eps1, eps2, plot_fields, n2 )
 % Makes the whole computation
 %   Inputs are wavelength and polarization of the
 %   grating and the light, output is the vector of reflected and
@@ -6,14 +6,13 @@ function [ RVec, real_Ray1_idx, real_Ray2_idx, m1, m2, B1, B2, b0 ] = Make_Compu
 [Switches, Parameters]=setParameters();
 %% Set constants
 
-d=Parameters(1).Param(4);                   %depth of the grating            
-thI=Parameters(1).Param(5)*pi/180;          %incident angle
-n1=Parameters(1).Param(6);                  %refraction index of incident medium
-n2=Parameters(1).Param(7);                  %refraction index of transmission medium 
+d=Parameters(1).ParamF(1);                   %period of the grating            
+thI=Parameters(1).ParamF(2)*pi/180;          %incident angle
+n1=Parameters(1).ParamF(3);                  %refraction index of incident medium
 K=2*pi/d;                  
-nTr=Parameters(1).Param(8);                 %Truncation number
+nTr=Parameters(1).ParamF(4);                 %Truncation number
 nDim=2*nTr+1;                               %Total number of modes
-h=Parameters(1).Param(10);
+h=Parameters(1).ParamF(6);                   %Depth of the grating
 
 if (h/d>1.4)
     disp('Deep grating, results can be inaccurate')
@@ -30,7 +29,7 @@ a_diff_fun=@(x) Parameters(2).Prof(x./k0);
 cut_small=1;
 
 if cut_small
-    tol=Parameters(1).Param(9);             %error tolerance
+    tol=Parameters(1).ParamF(5);             %error tolerance
 else
     tol=0;
 end
