@@ -1,9 +1,12 @@
 %% Matlab implementation of C-Method; Main File, parameters are loaded from the file setParameters.m
-% Based on the paper 
-% Changing the code below can seriosly affect the functionality of this program!!!
+
+% Based on the paper from Li, Chandezon, Granet, Pluey: 
+% Rigorous and efficient grating-analysis method made easy for optical
+% engineers (1999)
 
 clear all; clc;
 %% Prepare constants and load parameters
+
 [Switches, Parameters]=setParameters();
 VecWaveLength=Parameters(1).ParamVec(1,:);
 RefVec=zeros(length(VecWaveLength),1);
@@ -12,11 +15,12 @@ WaveLengthToPlot=Parameters(1).ParamF(7);
 n1=Parameters(1).ParamF(3);                                   %refraction index of incident medium
 n2Vec=Parameters(1).ParamVec(2,:);                            %refraction index of transmission medium
 thI=Parameters(1).ParamF(2)*pi/180;                           %incident angle (radians)
-Spectrum=zeros(2,length(VecWaveLength));                  % preallocate field for the optical response parameters
+Spectrum=zeros(2,length(VecWaveLength));                      % preallocate field for the optical response parameters
 output_plot = Switches(2).PlotFields;
 
 tic                                                           %start counting computing time
 %% Start computation
+
 switch output_plot  %switch between diffraction efficiencies and ellipsometric parameters
  case 'DEF'  %case 0th order diffraction efficiency
     
@@ -49,9 +53,11 @@ switch output_plot  %switch between diffraction efficiencies and ellipsometric p
         for k=min(real_Ray2_idx):max(real_Ray2_idx)
             etaT(k-min(real_Ray2_idx)+1)=(eps1/eps2(ii))*(sqrt(B2(k-m1+1))/b0)*(abs(RVec(k-min(real_Ray2_idx)+1+nDim)))^2;
         end
+        
         RAmp=(real_Ray1_idx==0);
         TAmp=(real_Ray1_idx==0);
         Spectrum(1,ii)=etaR(RAmp);
+        
         if imag(n2Vec(ii))==0
             Spectrum(2,ii)=etaT(TAmp);
         end
@@ -59,26 +65,26 @@ switch output_plot  %switch between diffraction efficiencies and ellipsometric p
     
 %% Plot graphs
     if(imag(n2Vec(ii))~=0)
-    figure(2)
-    plot(VecWaveLength,Spectrum(1,:))
-    title(strcat('Incident angle \vartheta= ',num2str(thI/pi*180),'°'))
-    xlabel('wavelength [m]')
-    ylabel('0th order reflectance')
-    hold on
+        figure(2)
+        plot(VecWaveLength,Spectrum(1,:))
+        title(strcat('Incident angle \vartheta= ',num2str(thI/pi*180),'°'))
+        xlabel('wavelength [m]')
+        ylabel('0th order reflectance')
+        hold on
 
     else
-    figure(2)
-    subplot(1,2,1)
-    plot(VecWaveLength,Spectrum(1,:),'r')
-    title(strcat('Incident angle \vartheta= ',num2str(thI/pi*180),'°'))
-    xlabel('wavelength [m]')
-    ylabel('0th order reflectance')
+        figure(2)
+        subplot(1,2,1)
+        plot(VecWaveLength,Spectrum(1,:),'r')
+        title(strcat('Incident angle \vartheta= ',num2str(thI/pi*180),'°'))
+        xlabel('wavelength [m]')
+        ylabel('0th order reflectance')
 
-    subplot(1,2,2)
-    plot(VecWaveLength,Spectrum(2,:),'r')
-    title(strcat('Incident angle \vartheta= ',num2str(thI/pi*180),'°'))
-    xlabel('wavelength [m]')
-    ylabel('0th order transmittance')
+        subplot(1,2,2)
+        plot(VecWaveLength,Spectrum(2,:),'r')
+        title(strcat('Incident angle \vartheta= ',num2str(thI/pi*180),'°'))
+        xlabel('wavelength [m]')
+        ylabel('0th order transmittance')
     end   
     
  case 'EMP'
@@ -86,9 +92,9 @@ switch output_plot  %switch between diffraction efficiencies and ellipsometric p
    for jj=1:2
         %% TM Polarization
         if jj==1
-        mu=1;                   %relative permeability
-        eps1=n1*n1/(mu^2);      %relative permittivity of incident medium
-        eps2=n2Vec.*n2Vec./(mu^2);      %relative permittivity of transmission medium
+            mu=1;                   %relative permeability
+            eps1=n1*n1/(mu^2);      %relative permittivity of incident medium
+            eps2=n2Vec.*n2Vec./(mu^2);      %relative permittivity of transmission medium
         end
         %% TE Polarization
         if jj==2
@@ -99,18 +105,19 @@ switch output_plot  %switch between diffraction efficiencies and ellipsometric p
         end
         %% Main computation
         for ii=1:length(VecWaveLength); %start computing diffraction efficiencies for given wavelengths
-            Lam=VecWaveLength(ii);
-            
+            Lam=VecWaveLength(ii);            
             [RVec, real_Ray1_idx, real_Ray2_idx,m1, m2, B1, B2, b0]=Make_Computation( Lam, eps1, eps2(ii), 0, n2Vec(ii) );
             Spectrum(jj,ii)=RVec(-min(real_Ray1_idx)+1);       
         end
    end
    
     %% Handle ellipsometric parameters
+    
     rho=Spectrum(1,:)./Spectrum(2,:);
 	psi=atan(abs(rho))*180/pi;
     delta=angle(rho)*180/pi;
     Ellipso=Parameters(1).Ellipso;
+    
     % Plot ellipsometric parameters
     figure(2)
     subplot(1,2,1)
